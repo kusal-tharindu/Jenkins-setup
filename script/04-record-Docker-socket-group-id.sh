@@ -78,7 +78,7 @@ docker compose down
 docker compose build jenkins-controller
 docker compose up -d jenkins-controller
 docker compose logs -f jenkins-controller
-
+docker-compose up -d --build
 
 docker compose --env-file /path/to/your/.env up -d jenkins-controller
 

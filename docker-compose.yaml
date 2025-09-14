@@ -12,7 +12,7 @@ volumes:
 services:
   jenkins-controller:
     build:
-      context: .
+      context: ./dockerfile
       dockerfile: Controller.Dockerfile
     image: jenkins-controller:prod
     container_name: jenkins-controller
@@ -39,6 +39,9 @@ services:
       - jenkins
 
   jenkins-agent-1:
+    build:
+      context: ./dockerfile
+      dockerfile: Agent.Dockerfile
     image: jenkins-agent:dockercli
     container_name: jenkins-agent-1
     restart: unless-stopped
@@ -59,6 +62,9 @@ services:
       - jenkins
 
   jenkins-agent-2:
+    build:
+      context: ./dockerfile
+      dockerfile: Agent.Dockerfile
     image: jenkins-agent:dockercli
     container_name: jenkins-agent-2
     restart: unless-stopped
