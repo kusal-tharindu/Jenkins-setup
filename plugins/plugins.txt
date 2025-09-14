@@ -1,0 +1,21 @@
+# Core pipeline + git
+workflow-aggregator
+git
+git-client
+
+# Docker pipelines
+docker-workflow
+
+# Config as Code + basics
+configuration-as-code
+job-dsl
+credentials
+credentials-binding
+matrix-auth
+role-strategy
+ssh-credentials
+mailer
+
+# UI/UX + health
+timestamper
+ansicolor

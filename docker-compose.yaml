@@ -1,0 +1,78 @@
+networks:
+  jenkins:
+    driver: bridge
+
+volumes:
+  jenkins_home:
+  jenkins_logs:
+  jenkins_certs:
+  jenkins_plugins:
+  jenkins_backups:
+
+services:
+  jenkins-controller:
+    build:
+      context: .
+      dockerfile: Controller.Dockerfile
+    image: jenkins-controller:prod
+    container_name: jenkins-controller
+    restart: unless-stopped
+    user: "1000:1000"
+    ports:
+      - "8080:8080"
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/casc/jenkins.yaml
+      - TZ=${TZ}
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - JENKINS_URL=${JENKINS_URL}
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/login"]
+      interval: 30s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - ./casc:/var/jenkins_home/casc:ro
+    networks:
+      - jenkins
+
+  jenkins-agent-1:
+    image: jenkins-agent:dockercli
+    container_name: jenkins-agent-1
+    restart: unless-stopped
+    depends_on:
+      - jenkins-controller
+    environment:
+      - JENKINS_URL=${JENKINS_URL}
+      - JENKINS_AGENT_NAME=${AGENT1_NAME}
+      - JENKINS_SECRET=${AGENT1_SECRET}
+      - JENKINS_WEB_SOCKET=true
+      - JENKINS_AGENT_WORKDIR=${AGENT1_WORKDIR}
+      # Make Docker CLI default to host socket
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./agents/agent-1:${AGENT1_WORKDIR}
+    networks:
+      - jenkins
+
+  jenkins-agent-2:
+    image: jenkins-agent:dockercli
+    container_name: jenkins-agent-2
+    restart: unless-stopped
+    depends_on:
+      - jenkins-controller
+    environment:
+      - JENKINS_URL=${JENKINS_URL}
+      - JENKINS_AGENT_NAME=${AGENT2_NAME}
+      - JENKINS_SECRET=${AGENT2_SECRET}
+      - JENKINS_WEB_SOCKET=true
+      - JENKINS_AGENT_WORKDIR=${AGENT2_WORKDIR}
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./agents/agent-2:${AGENT2_WORKDIR}
+    networks:
+      - jenkins
