@@ -82,3 +82,6 @@ docker-compose up -d --build
 
 docker compose --env-file /path/to/your/.env up -d jenkins-controller
 
+
+docker compose build jenkins-controller
+create a user for add jenks contoler 
